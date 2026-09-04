@@ -72,13 +72,11 @@ def step(
     loss = optimizer.step(closure)
 
     update_velocity(
-        mesh,
-        {
-            "h": time_step,
-            "x": x_attr,
-            "x_tilde": x_tilde_attr,
-            "velocity": velocity_attr,
-        },
+        mesh=mesh,
+        time_step=time_step,
+        x=x_attr,
+        x_tilde=x_tilde_attr,
+        velocity=velocity_attr,
     )
 
     return loss
@@ -140,24 +138,16 @@ def simulate(
         x[:, 1].mul_(initial_stretch)
 
     # Rest lengths are evaluated after the initial stretch, matching RXMesh.
-    calc_rest_length(
-        mesh,
-        {
-            "x": x_attr,
-            "rest_l": rest_l_attr,
-        },
-    )
+    calc_rest_length(mesh=mesh, x=x_attr, rest_lengths=rest_l_attr)
     rx.cuda_stream_synchronize()
 
     energy = make_energy(
-        mesh,
-        {
-            "mass": mass,
-            "h": time_step,
-            "k": stiffness,
-            "x": x_attr,
-            "rest_l": rest_l_attr,
-        },
+        mesh=mesh,
+        mass=mass,
+        time_step=time_step,
+        stiffness=stiffness,
+        x=x_attr,
+        rest_lengths=rest_l_attr,
     )
 
     # One persistent row-major gradient allocation for every timestep and
